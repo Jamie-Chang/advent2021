@@ -17,7 +17,6 @@ def fuel_cost(starting: int, end: int) -> int:
     return int(cost)
 
 
-
 def check_costs(positions: Collection[int]) -> Iterator[tuple[int, int]]:
     for position in range(min(positions), max(positions) + 1):
         yield position, sum(fuel_cost(p, position) for p in positions)
