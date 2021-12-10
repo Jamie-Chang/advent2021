@@ -44,7 +44,7 @@ def complete(line: str) -> str | None:
                 stack.pop()
             case c, [*_, opener] if c != CLOSER[opener]:
                 return None
-    
+
     return "".join(CLOSER[opener] for opener in reversed(stack))
 
 
@@ -66,7 +66,7 @@ def get_scores(lines: Iterable[str]) -> Iterator[int]:
         completion = complete(line)
         if completion is None:
             continue
-        
+
         yield get_score(completion)
 
 

@@ -43,7 +43,7 @@ def check(line: str) -> str | None:
                 stack.pop()
             case c, [*_, opener] if c != CLOSER[opener]:
                 return c
-    
+
     return None
 
 
