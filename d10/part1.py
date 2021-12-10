@@ -39,10 +39,10 @@ def check(line: str) -> str | None:
                 stack.append(c)
             case c, []:
                 return c
-            case c, [*_, opener] if c == CLOSER[opener]:
-                stack.pop()
             case c, [*_, opener] if c != CLOSER[opener]:
                 return c
+            case c, [*_, opener] if c == CLOSER[opener]:
+                stack.pop()
 
     return None
 

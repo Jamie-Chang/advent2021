@@ -40,10 +40,10 @@ def complete(line: str) -> str | None:
                 stack.append(c)
             case c, []:
                 return None
-            case c, [*_, opener] if c == CLOSER[opener]:
-                stack.pop()
             case c, [*_, opener] if c != CLOSER[opener]:
                 return None
+            case c, [*_, opener] if c == CLOSER[opener]:
+                stack.pop()
 
     return "".join(CLOSER[opener] for opener in reversed(stack))
 
