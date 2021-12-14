@@ -40,7 +40,7 @@ def step(pairs: Counter[Pair], rules: dict[Pair, NewPairs]) -> Counter[Pair]:
     return counter
 
 
-def count(pairs: Counter[Pair], start: Element, end: Element) -> dict[Element, int]:
+def count(pairs: Counter[Pair], start: Element, end: Element) -> Counter[Element]:
     counter = Counter()
     for pair, c in pairs.items():
         for element in pair:
@@ -49,11 +49,14 @@ def count(pairs: Counter[Pair], start: Element, end: Element) -> dict[Element, i
     counter[start] += 1
     counter[end] += 1
 
-    return {e: v // 2 for e, v in counter.items()}
+    for element in counter:
+        element //= 2
+
+    return counter
 
 
-def amplitude(element_count: dict[Element, int]) -> int:
-    return max(element_count.values()) - min(element_count.values())
+def amplitude(count: Counter[Element]) -> int:
+    return max(count.values()) - min(count.values())
 
 
 if __name__ == "__main__":
