@@ -1,3 +1,10 @@
+"""
+NOTE: This solution whilst being complete is not ideal
+The problem is more clearly solved with Dijkstra's.
+
+This solution is a dynamic programming solution modified to 
+perform Dijkstra's iteratively.
+"""
 import itertools
 import math
 from dataclasses import dataclass
