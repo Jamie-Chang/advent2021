@@ -1,6 +1,6 @@
 from typing import Iterable
 
-from d16.part1 import Packet, get_bits, parse, read
+from part1 import Packet, get_bits, parse, read
 
 
 
