@@ -1,9 +1,8 @@
 from __future__ import annotations
-from functools import cached_property
 
 import itertools
 from dataclasses import dataclass, field
-from typing import Iterator, Literal, TypeAlias, cast
+from typing import Iterator, Literal, TypeAlias
 
 Position: TypeAlias = tuple[int, int]
 PixelValue: TypeAlias = Literal[0, 1]
@@ -18,48 +17,70 @@ class Image:
     >>> image = Image()
     >>> image[0, 1] = 1
     >>> image.bounds
-    ((-2, -2), (3, 4))
+    ((-1, 0), (2, 3))
     >>> image[0, 1]
     1
     >>> len(list(image.keys()))
-    30
+    9
     """
 
-    pixel_type: PixelValue = 1
+    default: PixelValue = 0
     pixels: set[Position] = field(default_factory=set)
-    bounds: tuple[Position, Position] = (-2, -2), (3, 3)
-
-    @property
-    def other_type(self) -> PixelValue:
-        return other(self.pixel_type)
+    bounds: tuple[Position, Position] | None = None
 
     def __getitem__(self, position: Position) -> PixelValue:
-        return self.pixel_type if position in self.pixels else self.other_type
+        return other(self.default) if position in self.pixels else self.default
 
     def __setitem__(self, position: Position, value: PixelValue) -> None:
-        assert value in (0, 1)
-        if value != self.pixel_type:
+        if value != other(self.default):
             self.pixels.discard(position)
             return
 
         self.pixels.add(position)
+        bounds = (
+            (
+                position[0] - BORDER_WIDTH,
+                position[1] - BORDER_WIDTH,
+            ),
+            (
+                position[0] + BORDER_WIDTH + 1,
+                position[1] + BORDER_WIDTH + 1,
+            ),
+        )
         self.bounds = (
             (
-                min(self.bounds[0][0], position[0] - BORDER_WIDTH),
-                min(self.bounds[0][1], position[1] - BORDER_WIDTH),
-            ),
-            (
-                max(self.bounds[1][0], position[0] + BORDER_WIDTH + 1),
-                max(self.bounds[1][1], position[1] + BORDER_WIDTH + 1),
-            ),
+                (
+                    min(self.bounds[0][0], bounds[0][0]),
+                    min(self.bounds[0][1], bounds[0][1]),
+                ),
+                (
+                    max(self.bounds[1][0], bounds[1][0]),
+                    max(self.bounds[1][1], bounds[1][1]),
+                ),
+            )
+            if self.bounds
+            else bounds
         )
 
     def __iter__(self):
         return self.keys()
 
     def keys(self) -> Iterator[Position]:
-        start, end = self.bounds
-        return itertools.product(range(start[0], end[0]), range(start[1], end[1]))
+        if self.bounds is None:
+            return
+
+        yield from itertools.product(self.row_keys(), self.col_keys())
+
+    def row_keys(self) -> Iterator[int]:
+        if self.bounds is None:
+            return
+        yield from range(self.bounds[0][0], self.bounds[1][0])
+
+    def col_keys(self) -> Iterator[int]:
+        if self.bounds is None:
+            return
+
+        yield from range(self.bounds[0][1], self.bounds[1][1])
 
     def values(self) -> Iterator[PixelValue]:
         for k in self.keys():
@@ -68,11 +89,6 @@ class Image:
     def items(self) -> Iterator[tuple[Position, PixelValue]]:
         for k in self.keys():
             yield k, self[k]
-
-    def display(self) -> None:
-        start, end = self.bounds
-        for y in range(start[1], end[1]):
-            print("".join("#" if self[x, y] else " " for x in range(start[0], end[0])))
 
     @property
     def count(self) -> int:
@@ -84,12 +100,9 @@ def get_next_value(
     image: Image,
     position: Position,
 ) -> PixelValue:
-    positions = (
-        (x, y)
-        for y, x in itertools.product(
-            range(position[1] - 1, position[1] + 2),
-            range(position[0] - 1, position[0] + 2),
-        )
+    positions = itertools.product(
+        range(position[0] - 1, position[0] + 2),
+        range(position[1] - 1, position[1] + 2),
     )
     return algorithm[int("".join(str(image[p]) for p in positions), base=2)]
 
@@ -99,7 +112,8 @@ def other(value: PixelValue) -> PixelValue:
 
 
 def next_image(algorithm: Algorithm, image: Image) -> Image:
-    next_image = Image(other(algorithm[int(str(image.other_type) * 9, base=2)]))
+    next_default = algorithm[int(str(image.default) * 9, base=2)]
+    next_image = Image(next_default)
 
     for key in image:
         next_image[key] = get_next_value(algorithm, image, key)
@@ -120,10 +134,10 @@ def read_algorithm(lines: Iterator[str]) -> Algorithm:
 
 
 def read_image(lines: Iterator[str]) -> Image:
-    image = Image(1)
-    for y, line in enumerate(lines):
-        for x, c in enumerate(line):
-            image[x, y] = 1 if c == "#" else 0
+    image = Image()
+    for row, line in enumerate(lines):
+        for col, c in enumerate(line):
+            image[row, col] = 1 if c == "#" else 0
 
     return image
 
