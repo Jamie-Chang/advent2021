@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass
+from functools import cache
 from itertools import product
 from typing import Literal, TypeAlias, cast
 
@@ -68,25 +69,17 @@ class GameState:
         return None
 
 
-def _traverse(
-    state: GameState,
-    counter: Counter[PlayerIndex],
-    player: PlayerIndex,
-    universes: int,
-):
+@cache
+def traverse(state: GameState, player: PlayerIndex = 0, universes: int = 1):
     winner = state.won()
     if winner is not None:
-        counter[winner] += universes
-        return
+        return Counter({winner: universes})
 
+    result = Counter()
     for roll, u in DISTRIBUTION.items():
-        _traverse(state.roll(player, roll), counter, other(player), u * universes)
+        result += traverse(state.roll(player, roll), other(player), u * universes)
+    return result
 
-
-def traverse(state: GameState):
-    counter = Counter()
-    _traverse(state, counter, player=0, universes=1)
-    return counter
 
 
 if __name__ == "__main__":
