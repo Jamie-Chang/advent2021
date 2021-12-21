@@ -38,7 +38,7 @@ def advance(position: int, roll: int) -> int:
 DISTRIBUTION = outcome_distribution()
 
 
-@dataclass
+@dataclass(frozen=True)
 class GameState:
     position: tuple[int, int]
 
@@ -74,9 +74,6 @@ def _traverse(
     player: PlayerIndex,
     universes: int,
 ):
-    if counter is None:
-        counter = Counter()
-
     winner = state.won()
     if winner is not None:
         counter[winner] += universes
