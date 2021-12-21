@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass
-from functools import cache
+from functools import cache, cached_property
 from itertools import product
 from typing import Literal, TypeAlias, cast
 
@@ -59,11 +59,12 @@ class GameState:
             score=(self.score[0], new_score),
         )
 
-    def won(self) -> PlayerIndex | None:
-        if self.score[0] >= 21:
+    @cached_property
+    def winner(self, score: int = 21) -> PlayerIndex | None:
+        if self.score[0] >= score:
             return 0
 
-        if self.score[1] >= 21:
+        if self.score[1] >= score:
             return 1
 
         return None
@@ -71,15 +72,13 @@ class GameState:
 
 @cache
 def traverse(state: GameState, player: PlayerIndex = 0, universes: int = 1):
-    winner = state.won()
-    if winner is not None:
-        return Counter({winner: universes})
+    if state.winner is not None:
+        return Counter({state.winner: universes})
 
     result = Counter()
     for roll, u in DISTRIBUTION.items():
         result += traverse(state.roll(player, roll), other(player), u * universes)
     return result
-
 
 
 if __name__ == "__main__":
