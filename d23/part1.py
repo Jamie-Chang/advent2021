@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import cache, cached_property
-from typing import Final, Iterator, Literal, TypeAlias
+from itertools import islice
+from typing import Final, Iterator, Literal, TypeAlias, cast
 
 
 Position: TypeAlias = tuple[int, int]
@@ -222,21 +223,40 @@ def minimise_cost(state: State, target: State) -> int | None:
     )
 
 
+def read() -> Iterator[tuple[Position, Amphipod]]:
+    with open("d23/input.txt") as f:
+        for y, line in enumerate(islice(f, 1, None)):
+            for x, c in enumerate(line[1:]):
+                if c not in {"A", "B", "C", "D"}:
+                    continue
+                yield (x, y), cast(Amphipod, c)
+
+
+def load(board: Iterator[tuple[Position, Amphipod]], room_size: int = 2) -> State:
+    """
+    >>> expected = State(
+    ...     frozenset(
+    ...         [
+    ...             ((2, 1), "B"),
+    ...             ((2, 2), "D"),
+    ...             ((4, 1), "A"),
+    ...             ((4, 2), "C"),
+    ...             ((6, 1), "A"),
+    ...             ((6, 2), "B"),
+    ...             ((8, 1), "D"),
+    ...             ((8, 2), "C"),
+    ...         ]
+    ...     )
+    ... )
+    >>> load(read()) == expected
+    True
+    """
+
+    return State(frozenset(board), room_size=room_size)
+
+
 if __name__ == "__main__":
-    initial = State(
-        frozenset(
-            [
-                ((2, 1), "B"),
-                ((2, 2), "D"),
-                ((4, 1), "A"),
-                ((4, 2), "C"),
-                ((6, 1), "A"),
-                ((6, 2), "B"),
-                ((8, 1), "D"),
-                ((8, 2), "C"),
-            ]
-        )
-    )
+    initial = load(read())
     target = State(
         frozenset(
             [

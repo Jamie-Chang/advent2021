@@ -1,33 +1,32 @@
 from __future__ import annotations
+from itertools import chain, islice
+from typing import Iterator, cast
 
-from part1 import State, minimise_cost
+from part1 import Amphipod, Position, State, minimise_cost, load
+
+
+ADDITION = [
+    "  #D#C#B#A#",
+    "  #D#B#A#C#",
+]
+
+
+def read() -> Iterator[tuple[Position, Amphipod]]:
+    with open("d23/input.txt") as f:
+        lines = chain(
+            islice(f, 1, 3),
+            ADDITION,
+            f,
+        )
+        for y, line in enumerate(lines):
+            for x, c in enumerate(line[1:]):
+                if c not in {"A", "B", "C", "D"}:
+                    continue
+                yield (x, y), cast(Amphipod, c)
 
 
 if __name__ == "__main__":
-    initial = State(
-        frozenset(
-            [
-                ((2, 1), "B"),
-                ((2, 2), "D"),
-                ((2, 3), "D"),
-                ((2, 4), "D"),
-                ((4, 1), "A"),
-                ((4, 2), "C"),
-                ((4, 3), "B"),
-                ((4, 4), "C"),
-                ((6, 1), "A"),
-                ((6, 2), "B"),
-                ((6, 3), "A"),
-                ((6, 4), "B"),
-                ((8, 1), "D"),
-                ((8, 2), "A"),
-                ((8, 3), "C"),
-                ((8, 4), "C"),
-            ]
-        ),
-        room_size=4,
-    )
-
+    initial = load(read(), room_size=4)
     target = State(
         frozenset(
             [
