@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from itertools import chain
 from typing import Iterable, Iterator
 
 
