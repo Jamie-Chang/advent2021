@@ -3,7 +3,6 @@
 This happens to work, for full solution see part2.
 """
 
-
 from dataclasses import dataclass
 from typing import Generic, Iterator, TypeAlias, TypeVar, cast
 

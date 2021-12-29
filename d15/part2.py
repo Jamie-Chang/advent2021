@@ -2,13 +2,17 @@
 NOTE: This solution whilst being complete is not ideal
 The problem is more clearly solved with Dijkstra's.
 
-This solution is a dynamic programming solution modified to 
+This solution is a dynamic programming solution modified to
 perform Dijkstra's iteratively.
 """
+from __future__ import annotations
+
 import itertools
 import math
 from dataclasses import dataclass
 from typing import Generic, Iterator, TypeAlias, TypeVar
+
+from part1 import read
 
 Position: TypeAlias = tuple[int, int]
 
@@ -21,6 +25,8 @@ class Grid(Generic[T]):
 
     @property
     def width(self) -> int:
+        if not self.grid:
+            return 0
         return len(self.grid[0])
 
     @property
@@ -28,7 +34,7 @@ class Grid(Generic[T]):
         return len(self.grid)
 
     @classmethod
-    def empty(cls, width: int, height: int, default: T) -> "Grid":
+    def empty(cls, width: int, height: int, default: T) -> Grid:
         return cls([[default for _ in range(width)] for _ in range(height)])
 
     def __getitem__(self, position: Position) -> T:
@@ -50,11 +56,6 @@ class Grid(Generic[T]):
             yield row - 1, col
         if col > 0:
             yield row, col - 1
-
-
-def read() -> list[list[int]]:
-    with open("d15/input.txt") as f:
-        return [[int(c) for c in l.strip()] for l in f]
 
 
 def expand_map(grid: Grid[int]) -> Grid[int]:
@@ -136,8 +137,7 @@ def generate_scores(risks):
     scores: Grid[float] = Grid.empty(risks.width, risks.height, math.inf)
     scores[0, 0] = 0
     changes = {(0, 0)}
-    for attempt in itertools.count(1):
-        print(f"Attempt {attempt}, {len(changes) = }")
+    while True:
         if not changes:
             break
         changes = forward_scores(risks, scores, changes)
