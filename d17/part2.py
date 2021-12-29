@@ -1,13 +1,17 @@
+import cmath
 import math
-from typing import Iterable, Iterator, cast
-from parse import Result, parse
+from typing import Iterable, Iterator
+
+from part1 import read
 
 
-def read() -> tuple[tuple[int, int], tuple[int, int]]:
-    with open("d17/input.txt") as f:
-        result = parse("target area: x={x0:d}..{x1:d}, y={y0:d}..{y1:d}", f.read())
-        result = cast(Result, result)
-        return (result["x0"], result["x1"]), (result["y0"], result["y1"])
+def solve_quadratic(a: int, b: int, c: int) -> Iterable[complex]:
+    yield (-b + cmath.sqrt(b ** 2 - 4 * a * c)) / (2 * a)
+    yield (-b - cmath.sqrt(b ** 2 - 4 * a * c)) / (2 * a)
+
+
+def max_real(solutions: Iterable[complex]) -> float:
+    return max(x.real for x in solutions if x.real == x)
 
 
 def _solve_y_steps(initial: int, position: int) -> float:
@@ -18,12 +22,13 @@ def _solve_y_steps(initial: int, position: int) -> float:
 
     Instead solve for steps given initial and position.
     """
-    a = 1
-    b = -(2 * initial + 1)
-    c = position * 2
-    t = b * b - 4 * a * c
-    assert t > -0
-    return (-b + math.sqrt(t)) / (2 * a)
+    return max_real(
+        solve_quadratic(
+            a=1,
+            b=-(2 * initial + 1),
+            c=position * 2,
+        )
+    )
 
 
 def solve_y_steps(initial: int, target_range: tuple[int, int]) -> Iterator[int]:
@@ -46,12 +51,7 @@ def _solve_x_initial(steps: int, position: int):
 
     Solving for initial based on steps and position.
     """
-    a = 1
-    b = 1
-    c = -2 * position
-    t = b * b - 4 * a * c
-    assert t > -0
-    initial = (-b + math.sqrt(t)) / (2 * a)
+    initial = max_real(solve_quadratic(a=1, b=1, c=-2 * position))
     if steps >= initial:
         return initial
 
