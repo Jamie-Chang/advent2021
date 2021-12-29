@@ -1,54 +1,43 @@
-from typing import Iterable, Iterator, TypeAlias
+from collections import Counter
+from typing import Iterable, TypeAlias
+
+from part1 import read
 
 Age: TypeAlias = int
 
 
-def read() -> Iterator[int]:
-    with open("d6/input.txt") as f:
-        return (int(s) for s in f.read().strip().split(","))
-
-
-def get_count(ages: Iterable[int]) -> dict[Age, int]:
+def get_count(ages: Iterable[int]) -> Counter[Age]:
     """
     >>> get_count([1, 1, 8])
-    {1: 2, 8: 1}
+    Counter({1: 2, 8: 1})
     """
-    count = {}
+    count = Counter()
     for a in ages:
-        if a not in count:
-            count[a] = 0
         count[a] += 1
     return count
 
 
-def _day(count: dict[Age, int]) -> Iterable[tuple[Age, int]]:
+def _day(count: Counter[Age]) -> Iterable[tuple[Age, int]]:
     for age, num in count.items():
         if age in (0, 7):
             continue
 
         yield age - 1, num
 
-    new = count.get(0, 0)
-    yield 6, count.get(7, 0) + new
-    yield 8, new
+    yield 6, count[7] + count[0]
+    yield 8, count[0]
 
 
-def _filter_empty(counts: Iterable[tuple[Age, int]]) -> Iterable[tuple[Age, int]]:
-    for i, c in counts:
-        if c == 0:
-            continue
-        yield i, c
 
-
-def day(count: dict[Age, int]) -> dict[Age, int]:
+def day(count: Counter[Age]) -> Counter[Age]:
     """
-    >>> day({0: 8, 8: 1}) == {6: 8, 8: 8, 7: 1}
+    >>> day(Counter({0: 8, 8: 1})) == {6: 8, 8: 8, 7: 1}
     True
     """
-    return dict(_filter_empty(_day(count)))
+    return Counter(dict(_day(count)))
 
 
-def total(count: dict[Age, int]) -> int:
+def total(count: Counter[Age]) -> int:
     return sum(count.values())
 
 
