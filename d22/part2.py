@@ -29,15 +29,15 @@ class Cube:
     z: Range
 
     def __bool__(self) -> bool:
-        return self.area() > 0
+        return self.volume() > 0
 
-    def area(self) -> int:
+    def volume(self) -> int:
         """
-        >>> Cube((0, 1), (-2, 0), (-1, 2)).area()
+        >>> Cube((0, 1), (-2, 0), (-1, 2)).volume()
         6
-        >>> Cube((0, -10), (-2, 0), (-1, 2)).area()
+        >>> Cube((0, -10), (-2, 0), (-1, 2)).volume()
         0
-        >>> Cube(x=(10, 10), y=(10, 10), z=(10, 10)).area()
+        >>> Cube(x=(10, 10), y=(10, 10), z=(10, 10)).volume()
         0
         """
         return (
@@ -173,7 +173,7 @@ def load_cubes(data: CubeOps) -> Iterator[tuple[Cube, bool]]:
 
 
 def total(cubes: Iterable[Cube]) -> int:
-    return sum(c.area() for c in cubes)
+    return sum(c.volume() for c in cubes)
 
 
 if __name__ == "__main__":
