@@ -17,14 +17,6 @@ def outcomes(rolls: int = 3):
         yield sum(o)
 
 
-def outcome_distribution():
-    counter = Counter()
-    for outcome in outcomes(3):
-        counter[outcome] += 1
-
-    return counter
-
-
 def other(player: PlayerIndex) -> PlayerIndex:
     return cast(PlayerIndex, 1 - player)
 
@@ -36,7 +28,7 @@ def advance(position: int, roll: int) -> int:
     return new_position
 
 
-DISTRIBUTION = outcome_distribution()
+DISTRIBUTION = Counter(outcomes(3))
 
 
 @dataclass(frozen=True)
