@@ -13,7 +13,7 @@ P = ParamSpec("P")
 def filter_empty(fn: Callable[P, Iterator[Cube]]) -> Callable[P, Iterator[Cube]]:
     """Decorator to filter empty cubes from returned iterator"""
 
-    def _new_fn(*args, **kwargs):
+    def _new_fn(*args: P.args, **kwargs: P.kwargs):
         for cube in fn(*args, **kwargs):
             if not cube:
                 continue
@@ -168,8 +168,8 @@ def reactor_reboot(operations: Iterator[tuple[Cube, bool]]) -> Iterator[Cube]:
 
 
 def load_cubes(data: CubeOps) -> Iterator[tuple[Cube, bool]]:
-    for state, *dimentions in data:
-        yield Cube(*dimentions), state
+    for state, *dimensions in data:
+        yield Cube(*dimensions), state
 
 
 def total(cubes: Iterable[Cube]) -> int:
